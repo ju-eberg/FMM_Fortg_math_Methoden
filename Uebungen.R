@@ -215,4 +215,148 @@ cbind(grid, time = times) |>
   ggplot(aes(d, time, color = as.factor(n))) +
   geom_line()
 
-# Wir sehen also, dass die Laufzeit von d und n hier tatsächlich linear sind.
+# Wir sehen also, dass die Laufzeit von d und n hier tatsächlich linear sind. 
+
+
+
+##################### BLATT 3
+
+#3.1: goodnotest
+
+# #3.2:
+# # 
+# # Um zu zeigen, dass die gegebene Matrix
+# # 
+# # A =
+# #   | 1 1 |
+# #   | 0 ε |
+# #   
+# #   numerisch singulär bezüglich δ ist, müssen wir zeigen, dass die Kondition der Matrix A, κ(A),
+# multipliziert mit δ größer oder gleich 1 ist, wobei δ ≤ ε.
+# # 
+# # Die Kondition einer Matrix kann als Verhältnis der größten und kleinsten Singulärwerte 
+# der Matrix ausgedrückt werden. Die Kondition κ(A) ist definiert als:
+# #   
+# #   κ(A) = σ_max / σ_min,
+# # 
+# # wobei σ_max der größte Singulärwert und σ_min der kleinste Singulärwert von A ist.
+# # 
+# # Wir können die Singulärwerte von A berechnen. Zuerst berechnen wir die Eigenwerte von AA, 
+#   da die Singulärwerte von A die Quadratwurzeln der Eigenwerte von AA sind:
+# #   
+# #   A * A =
+# #   | 1 1 | * | 1 0 | = | 2 1 |
+# #   | 0 ε | | 1 ε | | ε ε² |
+# #   
+# #   Die Eigenwerte von AA sind die Lösungen der charakteristischen Gleichung det(AA - λI) = 0:
+# #   
+# #   det(A*A - λI) = | 2-λ 1 |
+# #   | ε ε²-λ |
+# #   
+# #   Die Eigenwerte sind die Lösungen der Gleichung (2-λ)(ε²-λ) - ε = 0:
+# #   
+# #   (2-λ)(ε²-λ) - ε = 0
+# # (2-λ)(λ² - ε²) - ε = 0
+# # 2λ² - 2ε² - λ³ + λε² - ε = 0
+# # 
+# # Da ε > 0 und λ ist eine Lösung der Gleichung, und die anderen beiden Lösungen sind komplex, 
+# können wir die größte und kleinste Eigenwerte bestimmen:
+# #   
+# #   Der größte Eigenwert (σ_max) ist der positive reale Wert von λ.
+# # 
+# # Der kleinste Eigenwert (σ_min) ist der nicht negative reale Wert von λ.
+# # 
+# # Die kleinste Eigenwert ist 0, und der größte Eigenwert ist der positive reale Wert. 
+#   Daher ist σ_max / σ_min unendlich, da der kleinste Eigenwert 0 ist.
+# # 
+# # Nun, um die numerische Kondition von A zu bestimmen, teilen wir den größten 
+# Singulärwert durch den kleinsten Singulärwert:
+# #   
+# #   κ(A) = σ_max / σ_min = ∞ / 0 = ∞.
+# # 
+# # Schließlich, da ε > 0 und δ ≤ ε, können wir sagen, dass κ(A) * δ ≥ ∞ * δ ≥ 1,
+#   was bedeutet, dass A numerisch singulär bezüglich δ ist.
+
+
+
+#3.3:
+
+set.seed(5)
+M <- matrix(rnorm(500 * 500), 500, 500)
+A <- M %*% t(M)
+B <- rnorm(500)
+c(
+  all(A == t(A)), # A ist symmetrisch
+  min(eigen(A)$values) > 0 # A ist positiv definit
+)
+
+# a. 
+# Schreibe eine Funktion spd_solve(A, B), welche die Cholesky-Faktorisierung von A
+# verwendet um A−1B zu berechnen. Die Funktionen chol(), forwardsolve() und
+# backsolve() sollten dabei nützlich sein.
+
+spd_solve <- function(A, B) {
+  # Cholesky-Faktorisierung von A
+  L <- chol(A)
+  
+  # Löse das Gleichungssystem L^T * x = B
+  x <- forwardsolve(t(L), B)
+  
+  # Löse das Gleichungssystem L * y = x
+  y <- backsolve(L, x)
+  
+  return(y)
+}
+
+# In dieser Funktion wird zuerst die Cholesky-Faktorisierung von A durchgeführt, 
+# indem chol(A) verwendet wird. Dann werden die Gleichungen L^T * x = B und L * y = x gelöst, 
+# um den Vektor y zu erhalten, 
+# der das Ergebnis von A⁻¹B darstellt.
+
+# b. Vergleiche solve und spd_solve
+
+# Erzeugen Sie eine zufällige SPD-Matrix A
+set.seed(5)
+M <- matrix(rnorm(500 * 500), 500, 500)
+A <- M %*% t(M)
+
+# Erzeugen Sie einen zufälligen Vektor B
+B <- rnorm(500)
+
+# Laufzeitmessung für solve(A, B)
+time_solve <- system.time(solve(A, B))
+
+# Laufzeitmessung für spd_solve(A, B)
+time_spd_solve <- system.time(spd_solve(A, B))
+
+# Ergebnisse ausgeben
+print("Laufzeit solve(A, B):")
+print(time_solve)
+
+print("Laufzeit spd_solve(A, B):")
+print(time_spd_solve)
+
+
+
+### c.  . 
+# Wie skalieren die Laufzeiten für k = 1, 10, 100? Wie lässt sich das Beobachtete erklären?
+# 
+# Die Laufzeiten für solve(A, B) und spd_solve(A, B) werden wahrscheinlich mit steigendem Wert von k skalieren, da die Größe der Matrix B sich ändert und sich dadurch die Anzahl der Operationen für die Berechnungen erhöht.
+# 
+# Hier ist eine allgemeine Erklärung:
+#   
+#   Für k = 1 (einen Vektor B):
+#   
+#   solve(A, B) löst das Gleichungssystem A⁻¹B für einen Vektor B.
+# spd_solve(A, B) verwendet die Cholesky-Faktorisierung von A und führt zwei Vorwärts- und Rückwärtssubstitutionen durch. Die Cholesky-Faktorisierung hat eine geringere Laufzeitkomplexität als die allgemeine Matrixinversion.
+# Für k = 10 (eine Matrix B mit 10 Spalten):
+#   
+#   Sowohl solve(A, B) als auch spd_solve(A, B) müssen eine Matrix B mit 10 Spalten behandeln. Die Laufzeiten beider Funktionen werden länger sein als bei k = 1, aber spd_solve wird wahrscheinlich schneller sein, da die Cholesky-Faktorisierung für A einmal durchgeführt wird, und dann wird die Vorwärts- und Rückwärtssubstitution für jede Spalte von B durchgeführt.
+# Für k = 100 (eine Matrix B mit 100 Spalten):
+#   
+#   Mit steigendem k werden die Laufzeiten für beide Funktionen noch länger. solve(A, B) wird aufgrund der Matrixinversion insbesondere bei großen Matrizen erheblich länger dauern. spd_solve(A, B) wird ebenfalls länger dauern, aber die Cholesky-Faktorisierung wird immer noch schneller sein als die Matrixinversion, insbesondere bei großen k.
+# Zusätzlich zur Größe von k hängt die Laufzeit auch von der Größe der Matrix A ab. Wenn A eine größere Matrix ist, werden die Berechnungen generell länger dauern. Die spezifischen Laufzeiten hängen auch von der Rechenleistung des verwendeten Computers und der Implementierung der verwendeten Funktionen ab.
+# 
+# Um genaue Aussagen über die Laufzeitkomplexität für verschiedene Werte von k und A zu treffen, wäre eine detaillierte Analyse der verwendeten Algorithmen und eine experimentelle Messung erforderlich. Es ist jedoch zu erwarten, dass die Cholesky-Faktorisierung insbesondere für große k und große A schneller ist als die Matrixinversion.
+# 
+# 
