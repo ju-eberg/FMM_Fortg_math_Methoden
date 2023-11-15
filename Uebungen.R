@@ -360,3 +360,26 @@ print(time_spd_solve)
 # Um genaue Aussagen über die Laufzeitkomplexität für verschiedene Werte von k und A zu treffen, wäre eine detaillierte Analyse der verwendeten Algorithmen und eine experimentelle Messung erforderlich. Es ist jedoch zu erwarten, dass die Cholesky-Faktorisierung insbesondere für große k und große A schneller ist als die Matrixinversion.
 # 
 # 
+
+
+################################
+# 4.1 und 4.2 in Goodnotes
+
+# 4.3
+
+
+# Lade die pracma-Bibliothek
+library(pracma)
+
+# Definiere die Matrix A mit einem kleinen Wert für ε
+epsilon <- 1e-10
+A <- matrix(c(epsilon, 1, 1, 1), nrow = 2, byrow = TRUE)
+
+# Berechne die LU-Zerlegung ohne Pivoting
+lu_result <- lu(A)
+
+# Gib die LU-Zerlegung aus
+print("Matrix L:")
+print(lu_result$L)
+print("Matrix U:")
+print(lu_result$U)
