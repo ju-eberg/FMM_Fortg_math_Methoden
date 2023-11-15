@@ -363,7 +363,13 @@ print(time_spd_solve)
 
 
 ################################
-# 4.1 und 4.2 in Goodnotes
+# 4.1: in Goodnotes, hier Zusatz:
+
+# Schreibe eine Funktion my_lu(A), welche die LU-Zerlegung von A berechnet.
+A <- matrix(c(2,4,3,-4,-7,-5,6,8,2), nrow = 3, byrow = TRUE)
+lu(A)
+
+#4.2 in Goodnotes
 
 # 4.3
 
@@ -383,3 +389,6 @@ print("Matrix L:")
 print(lu_result$L)
 print("Matrix U:")
 print(lu_result$U)
+
+
+
